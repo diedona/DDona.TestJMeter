@@ -39,17 +39,29 @@ namespace DDona.TestJMeter.WebApp.Controllers
         [Route("db/async")]
         public async Task<ActionResult> GetDbAsync()
         {
-            using (TransactionScope ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            //using (TransactionScope ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            //{
+            //    try
+            //    {
+            //        await InserirDados();
+            //        ts.Complete();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        return Ok($"não inseriu: {ex.Message}");
+            //    }
+            //}
+
+            _db.Begin();
+            try
             {
-                try
-                {
-                    await InserirDados();
-                    ts.Complete();
-                }
-                catch (Exception ex)
-                {
-                    return Ok($"não inseriu: {ex.Message}");
-                }
+                await InserirDados();
+                _db.Commit();
+            }
+            catch (Exception ex)
+            {
+                _db.RollBack();
+                return Ok($"não inseriu: {ex.Message}");
             }
 
             return Ok("Inseriu!!!");
@@ -69,7 +81,7 @@ namespace DDona.TestJMeter.WebApp.Controllers
             await _db.Inserir(iv1);
             await _db.Inserir(iv2);
 
-            //throw new Exception("MEEEEEEEEEEEERDA");
+            throw new Exception("MEEEEEEEEEEEERDA");
         }
     }
 }
